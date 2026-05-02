@@ -7,6 +7,9 @@ I am not working actively on this project any longer, but will review PRs and an
 Instead I am looking into building more undergraduate level math companions first to 
 build up to this eventually.
 
+Moreover, I have changed my mind on how to write such companions, preferring a much more
+mathlib first approach see https://docs.google.com/document/d/1BFsOyxS2lHsyH3qv9RmH5MIJWg3La8OCEJxoVmX-r_g/edit?tab=t.0
+
 ## Current progress
 
 - Chapter 1 - Sections 1, 2, 3, 4 + Solutions 1
