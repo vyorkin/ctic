@@ -1,37 +1,43 @@
-# Lean Companion to Riehl's Category Theory in Context
+# Lean-компаньон к Category Theory in Context Риль
 
-This repo is a Lean companion to the Category Theory in Context textbook. The book is
-freely available https://emilyriehl.github.io/files/context.pdf.
+> Это личный форк [rkirov/category-theory-in-context-lean](https://github.com/rkirov/category-theory-in-context-lean). Спасибо Rado Kirov за то, что начал этот проект — и сорян, если что-то здесь пойдёт не так, как в оригинале.
+>
+> Ниже — перевод оригинального README, английская версия лежит в [README.en.md](README.en.md).
 
-I am not working actively on this project any longer, but will review PRs and answer issues. 
-Instead I am looking into building more undergraduate level math companions first to 
-build up to this eventually.
+Этот репозиторий — Lean-компаньон к учебнику Category Theory in Context. Книга в
+свободном доступе: https://emilyriehl.github.io/files/context.pdf.
 
-Moreover, I have changed my mind on how to write such companions, preferring a much more
-mathlib first approach see https://docs.google.com/document/d/1BFsOyxS2lHsyH3qv9RmH5MIJWg3La8OCEJxoVmX-r_g/edit?tab=t.0
+Автор больше не работает над проектом активно, но продолжает смотреть PR и отвечать
+на issues. Вместо этого сейчас в фокусе — компаньоны к учебникам математики попроще,
+уровня бакалавриата, чтобы постепенно дойти и до этого проекта снова.
 
-## Current progress
+Кроме того, автор поменял мнение о том, как писать такие компаньоны, и теперь предпочитает
+подход, в первую очередь опирающийся на mathlib: см.
+https://docs.google.com/document/d/1BFsOyxS2lHsyH3qv9RmH5MIJWg3La8OCEJxoVmX-r_g/edit?tab=t.0
 
-- Chapter 1 - Sections 1, 2, 3, 4 + Solutions 1
+## Текущий прогресс
 
-## How to write a Lean companion to an existing math textbook
+- Глава 1 — разделы 1, 2, 3, 4 + решения к разделу 1
 
-This is inspired by Tao's https://github.com/teorth/analysis companion.
+## Как писать Lean-компаньон к существующему учебнику по математике
 
-The rough plan for writing a Lean companion is:
+Вдохновлено компаньоном Тао: https://github.com/teorth/analysis
 
-- each chapter gets its own .lean file
-- each definition, theorem and example from the text are writen to follow the style of the text as much as possible.
-- each exercise is writen as a theorem statement with a `sorry` for the proof.
-- in the chapters that introduce a new concept it is written in the .lean file and not imported from mathlib (even if it exists there)
-- in subsequent chapters, the mathlib definition can be used (hopefully it is equivalent, but with better usability, say custom tactics etc)
+Черновой план написания Lean-компаньона:
 
-## Contributing
+- каждая глава получает свой .lean файл
+- каждое определение, теорема и пример из текста записываются так, чтобы максимально следовать стилю оригинала
+- каждое упражнение записывается как формулировка теоремы с `sorry` вместо доказательства
+- в главах, вводящих новое понятие, оно определяется прямо в .lean файле, не импортируется из mathlib (даже если там уже есть)
+- в последующих главах можно использовать определение из mathlib (в расчёте на то, что оно эквивалентно, но удобнее — например, есть свои тактики)
 
-This is very much work in progress and an experiement. I am not an expert in Lean or category theory, so unclear to me:
+## Вклад в проект
 
-- which proofs and exercises from the text are amenable to formalization
-- how well can Lean support the concepts in the book
-- the pedagogical approach from the book can be followed without accidentally picking up too much complexity for some Lean technical reason.
+Это в значительной части работа в процессе и эксперимент. Автор не эксперт ни в Lean,
+ни в теории категорий, поэтому неясно:
 
-PRs are very welcome.
+- какие доказательства и упражнения из текста поддаются формализации
+- насколько хорошо Lean способен выразить понятия из книги
+- можно ли следовать педагогическому подходу книги, не увязнув при этом в лишней сложности по чисто техническим причинам Lean
+
+PR приветствуются.
