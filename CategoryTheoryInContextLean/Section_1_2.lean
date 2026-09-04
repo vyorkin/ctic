@@ -1,11 +1,11 @@
 import CategoryTheoryInContextLean.Section_1_1
 
 /-!
-# Category Theory in Context - Section 1.2
+# Category Theory in Context — раздел 1.2
 
-We introduce the opposite category, monomorphisms and epimorphisms.
-Also we define sections, retractions, retracts, split monos and split epis.
-We continue to use the custom definition of a category from Section 1.1.
+Вводим противоположную категорию, мономорфизмы и эпиморфизмы.
+Также определяем сечения, ретракции, ретракты, расщепляемые мономорфизмы и эпиморфизмы.
+Продолжаем использовать собственное определение категории из раздела 1.1.
 -/
 
 namespace CategoryInContext

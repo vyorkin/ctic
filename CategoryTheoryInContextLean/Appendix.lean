@@ -1,10 +1,10 @@
 import CategoryTheoryInContextLean.Section_1_1
 
 /-!
-# Category Theory in Context - Appendix
+# Category Theory in Context — приложение
 
-This file contains additional material and examples that are not in the book,
-but may be useful for further study and use definitions from the book.
+В этом файле — дополнительный материал и примеры, которых нет в книге, но которые
+могут быть полезны для дальнейшего изучения; используются определения из книги.
 -/
 
 namespace CategoryInContext

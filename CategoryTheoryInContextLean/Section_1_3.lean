@@ -2,11 +2,10 @@ import CategoryTheoryInContextLean.Section_1_1
 import CategoryTheoryInContextLean.Section_1_2
 
 /-!
-# Category Theory in Context - Section 1.3
+# Category Theory in Context — раздел 1.3
 
-We introduce functors, contravariant functors and the category of small categories.
-We continue to use the custom definition of a category from Section 1.1.
-
+Вводим функторы, контравариантные функторы и категорию малых категорий.
+Продолжаем использовать собственное определение категории из раздела 1.1.
 -/
 
 namespace CategoryInContext
@@ -128,11 +127,11 @@ instance CatProduct {α β : Type*} [C : Category α] [D : Category β] : Catego
   assoc _ _ _ := by repeat rw [assoc]
 
 /--
-A functor from the product category (bifunctor) to another category gives
-rise to functors from each factor category to the target category when
-fixing an object in the other factor.
+Функтор из категории произведения (бифунктор) в другую категорию порождает
+функторы из каждой категории-сомножителя в целевую категорию, если
+зафиксировать объект в другом сомножителе.
 
-this is not proved in the book, but it is easy to prove and useful
+В книге это не доказывается, но доказательство несложное, а результат полезен.
 -/
 def prod_functor_functorial_1 {α β γ : Type*} [C : Category α] [D : Category β]
     [Inhabited β] [E : Category γ] (F : Functor (α × β) γ) : Functor α γ where

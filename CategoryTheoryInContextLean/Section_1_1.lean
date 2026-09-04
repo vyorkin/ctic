@@ -1,25 +1,27 @@
 import Mathlib.Data.Matrix.Mul  -- use #min_imports to update
 
 /-!
-# Category Theory in Context - Section 1.1
+# Category Theory in Context — раздел 1.1
 
-We introduce the basic definition of a category and examples from different areas of math.
-We also define isomorphisms, groupoids and subcategories.
+Вводим базовое определение категории и примеры из разных областей математики.
+Также определяем изоморфизмы, группоиды и подкатегории.
 -/
 
 -- to avoid name clash with Mathlib.CategoryTheory.Category
 namespace CategoryInContext
 
 /--
-A category consists of a collection of objects and morphisms between them.
-The morphisms can be composed and there is an identity morphism for each object.
-The composition is associative and the identity morphisms act as identities for composition.
+Категория состоит из набора объектов и морфизмов между ними.
+Морфизмы можно композировать, и для каждого объекта есть тождественный морфизм.
+Композиция ассоциативна, а тождественные морфизмы — единицы композиции.
 
-Note: We stray slightly from definition in 1.1 by using Hom objects as types, instead
-of domain and codomain function out of generic morphism type.
+Замечание: небольшое отступление от определения 1.1 книги — здесь `Hom` задан как
+семейство типов, индексированное парой объектов, а не как единый тип морфизмов
+с функциями область/область значений.
 
-definition 1.1.1
-we use α instead of Obj following https://leanprover-community.github.io/contribute/style.html
+определение 1.1.1
+используем α вместо Obj, следуя стилю mathlib:
+https://leanprover-community.github.io/contribute/style.html
 -/
 class Category (α : Type*) where
   -- objects

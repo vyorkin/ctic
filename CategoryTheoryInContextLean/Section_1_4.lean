@@ -3,11 +3,11 @@ import CategoryTheoryInContextLean.Section_1_2
 import CategoryTheoryInContextLean.Section_1_3
 
 /-!
-# Category Theory in Context - Section 1.4
+# Category Theory in Context — раздел 1.4
 
-We introduce natural transformations.
+Вводим естественные преобразования.
 
-We continue to use the custom definition of a category, functor, etc, from Chapter 1.
+Продолжаем использовать собственные определения категории, функтора и т. д. из главы 1.
 -/
 
 namespace CategoryInContext
