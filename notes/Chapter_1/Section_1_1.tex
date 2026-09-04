@@ -1,0 +1,313 @@
+Категория — общий язык, на котором можно одновременно говорить про множества и функции,
+группы и их гомоморфизмы, частично упорядоченные множества и монотонные отображения,
+и множество других математических миров той же формы. Эта глава вводит базовые
+определения — категорию, функтор, естественное преобразование — на сквозных примерах
+из разных областей математики.
+
+\section{Абстрактные и конкретные категории}
+
+\begin{definition}{1.1.1}{категория}
+\emph{Категория} $\mathcal{C}$ состоит из
+\begin{itemize}
+  \item набора объектов $X, Y, Z, \ldots$;
+  \item для каждой пары объектов $X, Y$ — множества морфизмов $\mathrm{Hom}(X,Y)$,
+        элементы которого $f \colon X \to Y$ называются стрелками из $X$ в $Y$;
+  \item для каждого объекта $X$ — тождественного морфизма $\mathrm{id}_X \in
+        \mathrm{Hom}(X,X)$;
+  \item операции композиции $\mathrm{Hom}(Y,Z) \times \mathrm{Hom}(X,Y) \to
+        \mathrm{Hom}(X,Z)$, $(g,f) \mapsto g \circ f$,
+\end{itemize}
+таких что композиция ассоциативна, $(h \circ g) \circ f = h \circ (g \circ f)$, а
+тождественные морфизмы — единицы композиции: $\mathrm{id}_Y \circ f = f = f \circ
+\mathrm{id}_X$ для любого $f \colon X \to Y$.
+\leansource{CategoryInContext.Category}{(Hom : α → α → Type*)\leanbreak
+  (id : (X : α) → Hom X X)\leanbreak
+  (comp : {X Y Z : α} → Hom X Y → Hom Y Z → Hom X Z)\leanbreak
+  (id\_comp : ∀ {X Y} (f : Hom X Y), comp (id X) f = f)\leanbreak
+  (comp\_id : ∀ {X Y} (f : Hom X Y), comp f (id Y) = f)\leanbreak
+  (assoc : ∀ {W X Y Z} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z),\leanbreak
+  comp (comp f g) h = comp f (comp g h))}
+\end{definition}
+
+\begin{intuition}
+Категория не описывает, что такое объекты и морфизмы сами по себе — она лишь фиксирует
+правила игры для стрелок между ними: их можно складывать одну за другой, порядок
+скобок при этом не важен, а у каждого объекта есть "пустой ход", не меняющий ничего при
+композиции с ним. Ровно этими свойствами обладают функции между множествами (композиция
+функций ассоциативна, тождественная функция — единица) — множества с функциями удобно
+держать перед глазами как образец, даже когда формальный объект $\mathcal{C}$ гораздо
+общее.
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+  \node (x) at (0,0) {$X$};
+  \node (y) at (2,0) {$Y$};
+  \node (z) at (4,0) {$Z$};
+  \draw[->,intuitiongray] (x) to[bend left=15] node[above] {$f$} (y);
+  \draw[->,intuitiongray] (y) to[bend left=15] node[above] {$g$} (z);
+  \draw[->,intuitiongray] (x) to[bend right=25] node[below] {$g \circ f$} (z);
+\end{tikzpicture}
+\end{center}
+\end{intuition}
+
+\begin{remark}
+В Lean композиция морфизмов записывается в порядке чтения слева направо — $f \gg g$
+(\code{f ≫ g}), что соответствует соглашению mathlib. В книге принят традиционный
+порядок справа налево, $g \circ f$. Смысл один: сначала применяется $f$, затем $g$.
+\end{remark}
+
+\begin{example*}{категория типов}
+Простейший пример: объекты — все типы, морфизмы $X \to Y$ — произвольные функции между
+ними, тождественный морфизм — тождественная функция, композиция — обычная композиция
+функций.
+\leansource{CategoryInContext.Category.Type}{: Category (Type u)}
+\end{example*}
+
+\begin{remark}
+В книге аналогичный пример — категория $\mathbf{Set}$ всех множеств с функциями между
+ними. В Lean роль "всех множеств" играют типы (\code{Type u}) — так устроена теория
+типов, лежащая в основе Lean, и это отличие того же рода, что различие
+множество/класс в теоретико-множественном изложении теории категорий.
+\end{remark}
+
+\begin{example}{1.1.3.i}{}
+Зафиксируем тип $\alpha$ и рассмотрим только его подмножества (\code{Set α}) как
+объекты, с функциями между ними как морфизмами. Тождественность и композиция — те же,
+что у функций.
+\leansource{CategoryInContext.Category.Set}{(α : Type*) : Category (Set α)}
+\end{example}
+
+\begin{remark}
+В книге пример 1.1.3.i — категория всех множеств. Здесь вместо этого фиксируется один
+тип $\alpha$ и рассматриваются его подмножества — теоретико-множественный аналог такой
+категории тоже есть: это категория всех подмножеств одного фиксированного множества
+$X$.
+\end{remark}
+
+\begin{example}{1.1.4}{категории из разных областей математики}
+\begin{itemize}
+  \item[(i)] Матрицы над кольцом $R$: объекты — натуральные числа, морфизм из $n$ в
+        $m$ — матрица размера $m \times n$ над $R$, композиция — умножение матриц,
+        тождественный морфизм — единичная матрица.
+  \item[(ii)] Моноид $M$ как категория с единственным объектом $*$: морфизмы $* \to *$
+        — элементы $M$, композиция — умножение в $M$, тождественный морфизм — единица
+        моноида.
+  \item[(iii)] Частично упорядоченное множество $(P, \le)$ как категория: объекты —
+        элементы $P$, между $X$ и $Y$ есть ровно один морфизм, если $X \le Y$, и ни
+        одного иначе.
+  \item[(v)] Тривиальная категория на множестве объектов $\alpha$: между любыми двумя
+        объектами — ровно один морфизм.
+\end{itemize}
+\leansource{CategoryInContext.Category.MatR}{(α : Type*) [Ring α] : Category ℕ}
+\leansource{CategoryInContext.Category.Monoid}{(α : Type*) [Monoid α] : Category Unit}
+\leansource{CategoryInContext.Category.Poset}{(α : Type*) [PartialOrder α] : Category α}
+\leansource{CategoryInContext.Category.TrivialType}{(α : Type) : Category α}
+\end{example}
+
+\begin{intuition}
+Пункты (iii) и (v) объединяет то, что между любыми двумя объектами существует не более
+одного морфизма: сама стрелка $X \to Y$ здесь — просто факт «да» или «нет», без
+собственной внутренней структуры. Такие категории называют предпорядковыми (posetal) — это в точности отношения предпорядка, переписанные на языке категорий:
+рефлексивность даёт тождественный морфизм, транзитивность — композицию.
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+  \node (a) at (0,0) {$X$};
+  \node (b) at (2.4,0) {$Y$};
+  \draw[->,intuitiongray] (a) -- (b) node[midway,above] {не более одного морфизма};
+\end{tikzpicture}
+\end{center}
+\end{intuition}
+
+\begin{remark}
+Определения малой (1.1.6) и локально малой (1.1.7) категории различают категории по
+размеру классов объектов и морфизмов. В теории типов, на которой основан Lean, это
+различие устроено иначе с самого начала (иерархия универсумов уже встроена в саму
+теорию), и в этом Lean-компаньоне оно не формализовано.
+\end{remark}
+
+\begin{definition}{1.1.9}{изоморфизм}
+Морфизм $f \colon X \to Y$ называется \emph{изоморфизмом}, если существует морфизм $g
+\colon Y \to X$ такой, что $g \circ f = \mathrm{id}_X$ и $f \circ g = \mathrm{id}_Y$.
+Объекты $X$ и $Y$, между которыми есть изоморфизм, называются \emph{изоморфными}.
+\leansource{CategoryInContext.Category.Isomorphism}{(X Y : α) where\leanbreak
+  f : Hom X Y\leanbreak
+  inv : Hom Y X\leanbreak
+  hom\_inv\_id : f ≫ inv = id X\leanbreak
+  inv\_hom\_id : inv ≫ f = id Y}
+\end{definition}
+
+\begin{intuition}
+Изоморфизм — это стрелка, которую можно "отменить": применить $f$, затем $g$, и
+вернуться туда, откуда начали, причём в обе стороны. Для множеств это в точности
+биекция, для групп — изоморфизм групп, а для частично упорядоченного множества
+(пример 1.1.10.v ниже) оказывается, что это возможно только при $X=Y$.
+\end{intuition}
+
+\begin{remark}
+В Lean структура \code{Isomorphism} (пара морфизмов с двумя равенствами) и предикат
+\code{IsIso} (существование хоть какого-то обратного, без явного предъявления) заведены
+отдельно, а их равносильность доказана отдельно (\code{iso\_iff\_isIso}). Различие
+полезно там, где нужно сравнивать между собой два конкретных обратных морфизма:
+тождественный морфизм — изоморфизм самому себе (\code{id\_iso}), а из
+\bookref{exr:1.1.i}{упражнения 1.1.i} ниже следует, что обратный морфизм к $f$ определён
+однозначно.
+\end{remark}
+
+\begin{remark}
+Там же вводятся стандартные термины: эндоморфизм — морфизм объекта в себя
+(\code{Endomorphism}).\\
+Автоморфизм — изоморфизм объекта с самим собой (\code{Automorphism}).
+\end{remark}
+
+\begin{example}{1.1.10.v}{изоморфизмы в частично упорядоченном множестве}
+Пусть $(P,\le)$ — частично упорядоченное множество, рассматриваемое как категория
+(пример 1.1.4.iii). Морфизм $X \to Y$ в этой категории — изоморфизм тогда и только
+тогда, когда $X = Y$.
+\leansource{CategoryInContext.Category.poset_trivial}{(α : Type) [PartialOrder α]\leanbreak
+  (X Y : α) (f : Hom X Y) : IsIso f ↔ X = Y}
+\end{example}
+
+\begin{intuition}
+В категории из примера 1.1.4.iii между $X$ и $Y$ существует не более одного морфизма в
+каждую сторону, и он существует ровно тогда, когда $X \le Y$. Если $f \colon X \to Y$ —
+изоморфизм, есть и обратный $g \colon Y \to X$ — то есть одновременно $X \le Y$ и $Y \le
+X$, а это по антисимметричности порядка и даёт $X=Y$.
+\end{intuition}
+
+\begin{proof}
+\prooflabel{$\Rightarrow$} Пусть $f$ — изоморфизм с обратным $g \colon Y \to X$. Тогда
+$f$ свидетельствует $X \le Y$, а $g$ — $Y \le X$; по антисимметричности $\le$ получаем
+$X=Y$.
+
+\prooflabel{$\Leftarrow$} Если $X=Y$, то $f = \mathrm{id}_X$ — в этой категории между
+$X$ и им самим ровно один морфизм, а тождественный морфизм всегда изоморфизм самому
+себе.
+\end{proof}
+
+\begin{definition}{1.1.11}{группоид}
+Категория, в которой каждый морфизм — изоморфизм, называется \emph{группоидом}.
+\leansource{CategoryInContext.Category.Groupoid}{(α : Type*) [Category α] :=\leanbreak
+  ∀ {X Y : α} (f : Hom X Y), IsIso f}
+\end{definition}
+
+\begin{example}{1.1.12.i}{}
+Группа $G$, рассмотренная как категория с одним объектом (пример 1.1.4.ii) —
+группоид: обратным к морфизму $g \in G$ служит $g^{-1}$.
+\leansource{CategoryInContext.Category.group_groupoid}{(α : Type*) [Group α] :\leanbreak
+  Groupoid (Category.Monoid α)}
+\end{example}
+
+\begin{intuition}
+Отсюда и название: группа — частный случай группоида с одним объектом. Обратный
+элемент группы сразу даёт обратный морфизм — этим группоид как категория с одним
+объектом, все морфизмы которой обратимы, отличается от произвольного моноида как
+категории: обратимость элемента моноида ничем не гарантирована.
+\end{intuition}
+
+\begin{definition}{1.1.13}{подкатегория}
+\emph{Подкатегория} категории $\mathcal{C}$ — это часть объектов и часть морфизмов
+$\mathcal{C}$, замкнутая относительно тождественных морфизмов и композиции:
+тождественный морфизм каждого включённого объекта тоже включён, а композиция двух
+включённых морфизмов между включёнными объектами снова входит в подкатегорию.
+\leansource{CategoryInContext.Category.Subcategory}{(α : Type*) [Category α] where\leanbreak
+  obj : α → Prop\leanbreak
+  hom : {X Y : α} → Hom X Y → Prop\leanbreak
+  id\_mem : ∀ {X}, obj X → hom (id X)\leanbreak
+  comp\_mem : ∀ {X Y Z} {f : Hom X Y} {g : Hom Y Z},\leanbreak
+  obj X → obj Y → obj Z → hom f → hom g → hom (f ≫ g)}
+\end{definition}
+
+\begin{intuition}
+Подкатегория — это категория целиком внутри другой категории: если оставить только
+выбранные объекты и только выбранные морфизмы между ними, получившаяся структура сама
+обязана быть категорией. Замкнутость по тождественным морфизмам и по композиции — это
+ровно то, что для этого нужно: без первой у выбранного объекта внутри подкатегории не
+было бы собственного тождественного морфизма, без второй два выбранных морфизма могли
+бы составляться в морфизм вне подкатегории.
+\end{intuition}
+
+\begin{lemma}{1.1.13}{максимальный подгруппоид}
+Для любой категории $\mathcal{C}$ все объекты $\mathcal{C}$ вместе со всеми её
+изоморфизмами образуют подкатегорию — \emph{максимальный подгруппоид} $\mathcal{C}$.
+\leansource{CategoryInContext.Category.maximal_subgroupoid}{{α : Type*} [Category α] :\leanbreak
+  Subcategory α}
+\end{lemma}
+
+\begin{intuition}
+Тождественный морфизм любого объекта — изоморфизм самому себе, а композиция двух
+изоморфизмов — снова изоморфизм: обратным к $g \circ f$ служит $f^{-1} \circ g^{-1}$.
+Этого достаточно для замкнутости подкатегории, поэтому изоморфизмы категории сами
+образуют подкатегорию — причём наибольшую среди подкатегорий с теми же объектами, чьи
+морфизмы сплошь изоморфизмы: любая такая подкатегория содержится в ней.
+\end{intuition}
+
+\begin{remark}
+В книге то же утверждение фигурирует и как упражнение 1.1.ii. В Lean обе части
+доказательства (\code{id\_mem}, \code{comp\_mem}) пока \code{sorry}.
+\end{remark}
+
+\begin{exercise}{1.1.i}{}
+Пусть $f \colon X \to Y$ обладает левым обратным $g \colon Y \to X$ ($g \circ f =
+\mathrm{id}_X$) и правым обратным $h \colon Y \to X$ ($f \circ h = \mathrm{id}_Y$).
+Тогда $g = h$, и в частности $f$ — изоморфизм.
+\leansource{CategoryInContext.Category.pair_inverse_iso}{{X Y : α} (f : Hom X Y)\leanbreak
+  (g h : Hom Y X) (hg : f ≫ g = id X) (hf : h ≫ f = id Y) :\leanbreak
+  g = h ∧ IsIso f}
+\end{exercise}
+
+\begin{intuition}
+Один и тот же приём доказывает сразу оба факта — вставить тождественный морфизм в
+середину цепочки и переставить скобки по ассоциативности:
+\[
+  g = g \circ \mathrm{id}_Y = g \circ (f \circ h) = (g \circ f) \circ h = \mathrm{id}_X
+  \circ h = h.
+\]
+Как только $g=h$, этот общий морфизм одновременно и левый, и правый обратный к $f$ —
+то есть $f$ обратим.
+\end{intuition}
+
+\begin{remark}
+В Lean доказательство пока \code{sorry}.
+\end{remark}
+
+\begin{remark}
+Отдельно, \code{inv\_unique\_iso} — прямое следствие только что доказанного: если у
+двух структур изоморфизма между $X$ и $Y$ совпадают прямые морфизмы, совпадают и
+обратные. Иными словами, структура \code{Isomorphism} с заданным $f$ определена
+однозначно. В Lean пока \code{sorry}.
+\end{remark}
+
+\begin{exercise}{1.1.iii.i}{}
+Пусть $c$ — объект категории $\mathcal{C}$. \emph{Категория срезов над $c$} ($\mathcal{C}/c$)
+— это категория, объекты которой — морфизмы $X \to c$ в $\mathcal{C}$, а морфизм из
+$(X,f)$ в $(Y,g)$ — морфизм $h \colon X \to Y$ такой, что $g \circ h = f$. Двойственно
+определяется \emph{категория срезов под $c$} ($c/\mathcal{C}$) — с морфизмами $c \to X$ и
+условием $h \circ f = g$.
+\leansource{CategoryInContext.Category.slice_over}{(c : α) :\leanbreak
+  Category (Σ X : α, Hom X c)}
+\leansource{CategoryInContext.Category.slice_under}{(c : α) :\leanbreak
+  Category (Σ X : α, Hom c X)}
+\end{exercise}
+
+\begin{intuition}
+Объект среза — это пара: сам $X$ вместе со способом отобразить его в $c$. Морфизм среза
+— это морфизм между такими $X$, согласованный с этим способом (треугольник
+коммутирует).
+
+\begin{center}
+\begin{tikzpicture}[every node/.style={font=\small}]
+  \node (x) at (0,1.2) {$X$};
+  \node (y) at (2,1.2) {$Y$};
+  \node (c) at (1,0) {$c$};
+  \draw[->,intuitiongray] (x) -- (y) node[midway,above] {$h$};
+  \draw[->,intuitiongray] (x) -- (c) node[midway,left] {$f$};
+  \draw[->,intuitiongray] (y) -- (c) node[midway,right] {$g$};
+\end{tikzpicture}
+\end{center}
+\end{intuition}
+
+\begin{remark}
+Доказательства функториальных законов (\code{id\_comp}, \code{comp\_id}, \code{assoc})
+для обеих категорий срезов в Lean пока \code{sorry}.
+\end{remark}

@@ -1,0 +1,290 @@
+% Общий преамбул для конспекта. Собирается через XeLaTeX/LuaLaTeX.
+% Адаптировано из личного конспекта Analysis I
+% (/Users/vyorkin/projects/learn/lean4/analysis/notes/preamble.tex) — см. там же
+% STYLE.md с полным описанием всех макросов и типографских решений.
+
+\usepackage{polyglossia}
+\setmainlanguage{russian}
+\setotherlanguage{english}
+
+\usepackage{fontspec}
+\setmainfont{PT Serif}
+% Без Scale=MatchLowercase Menlo визуально заметно крупнее и жирнее PT Serif
+% при том же кегле — инлайн-код "прыгает" на фоне обычного текста.
+% MatchLowercase подгоняет размер моноширинного шрифта по x-height основного.
+\setmonofont{Menlo}[Scale=MatchLowercase]
+\newfontfamily\cyrillicfont{PT Serif}
+\newfontfamily\cyrillicfonttt{Menlo}[Scale=MatchLowercase]
+
+% По умолчанию LaTeX увеличивает пробел после точки, которую считает концом
+% предложения (англоязычная традиция) — из-за этого один и тот же на вид
+% пробел после разных предложений мог визуально отличаться по ширине,
+% особенно когда предложение заканчивается на символ из математического
+% режима (как "$\Omega$."). В русской типографике пробел после точки везде
+% одинаковый — ровно это и делает \frenchspacing.
+\frenchspacing
+
+\usepackage{amsmath, amssymb, amsthm, mathtools}
+
+% amsthm по умолчанию продолжает текст доказательства на той же строке, что
+% и заголовок "Доказательство." — здесь после заголовка всегда перенос
+% строки. Копия \newenvironment{proof} из amsthm.sty с добавленным \newline.
+\makeatletter
+\renewenvironment{proof}[1][\proofname]{\par
+  \pushQED{\qed}%
+  \normalfont \topsep6\p@\@plus6\p@\relax
+  \trivlist
+  \item[\hskip\labelsep
+        \itshape
+    #1\@addpunct{.}]\hspace{0pt}\\\ignorespaces
+}{%
+  \popQED\endtrivlist\@endpefalse
+}
+\makeatother
+\usepackage{microtype}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\graphicspath{{images/}}
+\usepackage{xcolor}
+\usepackage{framed} % рамка \leftbar для окружения intuition, см. ниже
+\usepackage{tikz} % минималистичные иллюстрации к отдельным доказательствам
+\usetikzlibrary{calc} % арифметика над координатами ($(x)+(dx,dy)$)
+
+% Документ читается с экрана, не печатается — поля уже, чем в книжной
+% вёрстке, и одинаковые с обеих сторон (документ не переплетается).
+\usepackage[margin=2.7cm]{geometry}
+
+% Чуть больше межстрочного интервала, чем "книжный" одинарный — легче
+% воспринимать длинные доказательства и оставлять место для мысленных пометок.
+\linespread{1.08}
+
+% Приглушённый серый — для служебных пометок (ссылка на Lean-исходник),
+% чтобы они не конкурировали по контрасту с математическим текстом.
+\definecolor{leangray}{gray}{0.58}
+
+% Приглушённый синий — для кликабельных ссылок на другие определения/теоремы
+% (\bookref). hyperref подключён с [hidelinks], то есть сам он ссылки никак
+% не выделяет — цвет здесь единственный сигнал, что по тексту можно
+% кликнуть, поэтому красим текст ссылки вручную сами.
+\definecolor{bookblue}{RGB}{37,84,150}
+
+% Тот же приглушённый серый, что и leangray — для линии слева и подписи
+% окружения intuition (см. ниже). Отдельное имя цвета, а не переиспользование
+% leangray напрямую, чтобы два визуально разных по смыслу элемента (ссылка на
+% Lean-исходник и блок с интуицией) не были жёстко связаны одним именем —
+% если в будущем понадобится развести их цвета, менять придётся только здесь.
+\definecolor{intuitiongray}{gray}{0.55}
+
+% Компактные, но не слипшиеся списки по умолчанию — пригодится для шагов
+% доказательства/условий упражнений.
+\setlist{itemsep=0.2em, topsep=0.5em}
+
+\usepackage[hidelinks]{hyperref}
+\usepackage{xurl} % разрешает перенос \path/\url по любому символу, не только после "_"/"."
+\usepackage{cleveref}
+
+% У Menlo нет глифа "≫" (U+226B, композиция морфизмов в стиле mathlib) — внутри
+% \texttt/\code этот символ иначе печатается как пустой прямоугольник ("Missing
+% character"). newunicodechar подменяет именно этот символ на математический \gg
+% из основного шрифта формул, независимо от того, в каком текущем шрифте он
+% встретился (в частности, внутри моноширинных Lean-сигнатур в \leansource/\code).
+\usepackage{newunicodechar}
+\newunicodechar{≫}{\ensuremath{\gg}}
+
+% hyperref по умолчанию делает \url/\path курсивным, если курсивен окружающий
+% текст (\urlstyle{same}) — для моноширинного шрифта это выглядит плохо
+% (синтетический наклон). Код должен быть прямым всегда.
+\urlstyle{tt}
+
+% Заголовки разделов вида "1.2" — как в книге
+\renewcommand\thesection{\thechapter.\arabic{section}}
+
+% Внутренние (немые) amsthm-окружения. Их автосчётчик не используется по
+% значению — он лишь механизм amsthm для печати номера. Сам номер мы каждый
+% раз подставляем вручную через \renewcommand\theaxiomEnv, см. ниже.
+%
+% Везде используется свой стиль "book": жирный заголовок, ПРЯМОЙ текст тела
+% (стандартный "plain" даёт курсивное тело, и курсив на длинных абзацах и
+% особенно в моноширинном шрифте читается плохо), а формулировка начинается
+% с новой строки (последний параметр \newtheoremstyle — "отступ после
+% заголовка" — здесь буквально \newline, а не длина). Без этого заголовок
+% и первые слова формулировки делят одну строку с оставшейся её частью,
+% и при полной выключке текста пробел в этой строке иногда растягивается
+% заметно сильнее, чем на соседних строках, — с новой строки эта строка
+% всегда обычная строка бегущего текста, без короткого жирного довеска.
+\newtheoremstyle{book}{3pt}{3pt}{}{}{\bfseries}{.}{\newline}{}
+\theoremstyle{book}
+\newtheorem{axiomEnv}{Аксиома}
+\newtheorem{theoremEnv}[axiomEnv]{Теорема}
+\newtheorem{propositionEnv}[axiomEnv]{Утверждение}
+\newtheorem{lemmaEnv}[axiomEnv]{Лемма}
+\newtheorem{corollaryEnv}[axiomEnv]{Следствие}
+\newtheorem{definitionEnv}[axiomEnv]{Определение}
+\newtheorem{exampleEnv}[axiomEnv]{Пример}
+\newtheorem{exerciseEnv}[axiomEnv]{Упражнение}
+\newtheorem{assumptionEnv}[axiomEnv]{Предположение}
+\newtheorem{remarkEnv}[axiomEnv]{Замечание}
+\newtheorem*{axiomEnv*}{Аксиома}
+\newtheorem*{theoremEnv*}{Теорема}
+\newtheorem*{propositionEnv*}{Утверждение}
+\newtheorem*{lemmaEnv*}{Лемма}
+\newtheorem*{corollaryEnv*}{Следствие}
+\newtheorem*{definitionEnv*}{Определение}
+\newtheorem*{exampleEnv*}{Пример}
+\newtheorem*{exerciseEnv*}{Упражнение}
+\newtheorem*{assumptionEnv*}{Предположение}
+\newtheorem*{remark}{Замечание}
+
+% Дословная нумерация книги. Использование:
+%   \begin{definition}{1.1.1}{категория} ... \end{definition}
+% Первый аргумент — номер БУКВАЛЬНО как в комментарии над Lean-объявлением
+% (см. CLAUDE.md, «Нумерация в Lean-файлах»), второй — заголовок в скобках
+% (можно оставить {}). В этой книге определения/теоремы/леммы/примеры
+% нумеруются арабскими цифрами по разделу (Definition 1.1.1), а упражнения —
+% римскими (Exercise 1.4.vi) — единой сквозной автонумерации по разделу тут
+% не годится ни для одного из двух случаев, поэтому номер всегда указывается
+% вручную, ровно в том виде, в каком он стоит в Lean-комментарии (включая
+% римские цифры для упражнений).
+% Каждое окружение заодно ставит \label{префикс:номер} — это даёт возможность
+% ссылаться на него настоящей кликабельной ссылкой через \bookref (см.
+% ниже), без ручной возни с метками.
+%
+% \nopagebreak в конце запрещает разрыв страницы сразу после формулировки —
+% без него между "Определение 1.1.1." и следующим за ним "Доказательство."
+% может влезть граница страницы, что рвёт нить рассуждения.
+\newenvironment{axiom}[2]{\renewcommand\theaxiomEnv{#1}\begin{axiomEnv}[#2]\label{ax:#1}}{\end{axiomEnv}\nopagebreak}
+\newenvironment{theorem}[2]{\renewcommand\theaxiomEnv{#1}\begin{theoremEnv}[#2]\label{thm:#1}}{\end{theoremEnv}\nopagebreak}
+\newenvironment{proposition}[2]{\renewcommand\theaxiomEnv{#1}\begin{propositionEnv}[#2]\label{prop:#1}}{\end{propositionEnv}\nopagebreak}
+\newenvironment{lemma}[2]{\renewcommand\theaxiomEnv{#1}\begin{lemmaEnv}[#2]\label{lem:#1}}{\end{lemmaEnv}\nopagebreak}
+\newenvironment{corollary}[2]{\renewcommand\theaxiomEnv{#1}\begin{corollaryEnv}[#2]\label{cor:#1}}{\end{corollaryEnv}\nopagebreak}
+\newenvironment{definition}[2]{\renewcommand\theaxiomEnv{#1}\begin{definitionEnv}[#2]\label{def:#1}}{\end{definitionEnv}\nopagebreak}
+\newenvironment{example}[2]{\renewcommand\theaxiomEnv{#1}\begin{exampleEnv}[#2]\label{ex:#1}}{\end{exampleEnv}\nopagebreak}
+\newenvironment{exercise}[2]{\renewcommand\theaxiomEnv{#1}\begin{exerciseEnv}[#2]\label{exr:#1}}{\end{exerciseEnv}\nopagebreak}
+\newenvironment{assumption}[2]{\renewcommand\theaxiomEnv{#1}\begin{assumptionEnv}[#2]\label{assum:#1}}{\end{assumptionEnv}\nopagebreak}
+
+% Нумерованное замечание (в отличие от беззвёздного \remark выше, который печатается
+% вовсе без номера) — для тех случаев, когда само замечание пронумеровано в книге.
+% Название оставлено отдельным от \remark, чтобы не менять смысл уже использующихся
+% в разделах \begin{remark}...\end{remark}.
+\newenvironment{remarknum}[2]{\renewcommand\theaxiomEnv{#1}\begin{remarkEnv}[#2]\label{rem:#1}}{\end{remarkEnv}\nopagebreak}
+
+% Беззвёздная версия — для утверждений, которые в книге не пронумерованы
+% (например, приведены как рассуждение в прозе, без формальной метки).
+% Аргумент — заголовок в скобках, номер не печатается.
+\newenvironment{axiom*}[1]{\begin{axiomEnv*}[#1]}{\end{axiomEnv*}\nopagebreak}
+\newenvironment{theorem*}[1]{\begin{theoremEnv*}[#1]}{\end{theoremEnv*}\nopagebreak}
+\newenvironment{proposition*}[1]{\begin{propositionEnv*}[#1]}{\end{propositionEnv*}\nopagebreak}
+\newenvironment{lemma*}[1]{\begin{lemmaEnv*}[#1]}{\end{lemmaEnv*}\nopagebreak}
+\newenvironment{corollary*}[1]{\begin{corollaryEnv*}[#1]}{\end{corollaryEnv*}\nopagebreak}
+\newenvironment{definition*}[1]{\begin{definitionEnv*}[#1]}{\end{definitionEnv*}\nopagebreak}
+\newenvironment{example*}[1]{\begin{exampleEnv*}[#1]}{\end{exampleEnv*}\nopagebreak}
+\newenvironment{exercise*}[1]{\begin{exerciseEnv*}[#1]}{\end{exerciseEnv*}\nopagebreak}
+\newenvironment{assumption*}[1]{\begin{assumptionEnv*}[#1]}{\end{assumptionEnv*}\nopagebreak}
+
+% Ссылка на конкретную лемму/теорему в Lean-файле того же раздела.
+% \path (из url.sty, с xurl) даёт моноширинный текст, переносимый по любому
+% символу — длинные идентификаторы не вылезают за поля, и не нужно
+% экранировать подчёркивания вручную.
+\newcommand{\leanref}[1]{\path{#1}}
+
+% Короткая вставка кода прямо в тексте (не длинный идентификатор — для тех
+% есть \leanref). \mbox запрещает перенос строки внутри — короткий фрагмент
+% вроде "zero : Nat" не должен разрываться пополам на границе строки.
+\newcommand{\code}[1]{\mbox{\texttt{#1}}}
+
+% Внутри инлайн-формулы запрещает перенос строки ВНУТРИ данной скобочной
+% группы — например, в цепочке "$x \iff \nosplit{(x \in A \lor x \in B)}
+% \iff y$", чтобы перенос по ширине не разрезал "(x ∈ A ∨ x ∈ / B)" пополам.
+% Не \mbox: \mbox замораживает ширину группы совершенно жёстко, и это лишает
+% microtype/обычную выключку возможности чуть сжать-растянуть соседние
+% пробелы — из-за этого короткая скобка неожиданно вызывала Overfull hbox
+% (текст на пару мм вылезал за поле), хотя визуально казалось, что перенос
+% просто ушёл на следующую строку. \relpenalty/\binoppenalty — пенальти
+% именно за перенос на отношениях (\in, \subseteq, класс Rel) и бинарных
+% связках (\land, \lor, класс Bin) — TeX по умолчанию считает их разрешёнными
+% точками переноса ВНУТРИ формулы. Подняв оба до 10000 локально (в пределах
+% группы {...}), запрещаем перенос именно там, но не мешаем обычной выключке
+% искать другую точку (например, перед всей группой, на внешнем \iff).
+\newcommand{\nosplit}[1]{{\relpenalty=10000\binoppenalty=10000 #1}}
+
+% Вынесенная строка с именем Lean-теоремы/леммы вместе с её формальной
+% сигнатурой — ставится последней внутри окружения, после
+% доказательства/формулировки. #1 — идентификатор, #2 — явные параметры и
+% формулировка (без неявных {..}-параметров), в родном синтаксисе Lean.
+% Флеш-лефт, а не hfill: сигнатура обычно длиннее одного идентификатора и
+% переносится на несколько строк, вправо это смотрелось бы плохо.
+%
+% Две вещи для читаемости длинных сигнатур:
+%   1) \raggedright — это код, а не проза. Полная выключка растягивала
+%      межсловные пробелы на перенесённых строках так же уродливо, как и
+%      в обычном тексте, только здесь это особенно бросается в глаза;
+%   2) \hangindent — если сигнатура не помещается и переносится, продолжение
+%      уходит с отступом, а не жмётся к левому краю вровень с "Lean:".
+% Перенос происходит только когда сигнатура реально не помещается — короткие
+% остаются на одной строке с именем.
+% Запрещает разрыв страницы между строками ЭТОГО абзаца — без него длинная
+% сигнатура, перенесённая на 2-3 строки через \leanbreak, могла разъехаться
+% по границе страницы. \par\nobreak в начале уже запрещает разрыв ПЕРЕД этим
+% \leansource — см. \nopagebreak в определениях axiom/theorem/... выше.
+%
+% Обёрнуто в \parbox, а не просто \clubpenalty/\widowpenalty/\interlinepenalty
+% — те применяются только к разрывам ВНУТРИ одного абзаца, а \leanbreak
+% внутри \raggedright не создаёт второй "строки" того же абзаца: \raggedright
+% переопределяет \\ на \@centercr, которая сама вызывает \par — то есть
+% \leanbreak на самом деле начинает НОВЫЙ абзац. \parbox делает всю сигнатуру
+% одним неделимым боксом: TeX либо целиком помещает её на текущую страницу,
+% либо целиком переносит на следующую.
+\newcommand{\leansource}[2]{\par\nobreak\smallskip\noindent
+  \parbox[t]{\linewidth}{\raggedright\hangindent=2em\hangafter=1
+  \footnotesize\color{leangray}Lean:~{\leanref{#1}}\ \texttt{#2}}\par}
+
+% Ручной перенос строки внутри сигнатуры \leansource{}{...} — для длинных
+% сигнатур, которые не помещаются в одну строку. Ставится в точке
+% семантического разрыва (после имени теоремы, если аргументов нет, или
+% перед финальным ":", отделяющим гипотезы от заключения) — не там, где
+% попало у автоматического переноса по ширине строки.
+\newcommand{\leanbreak}{\\\hspace*{2em}}
+
+% Единообразный разбор случаев внутри \begin{proof}...\end{proof}:
+%   \caselabel{$\Omega \in \Omega$} Тогда ...
+\newcommand{\caselabel}[1]{\medskip\noindent\textbf{Случай #1.}\\}
+
+% То же самое, но с произвольной подписью — для шагов индукции и похожих
+% структурных частей доказательства:
+%   \prooflabel{База} $n = 0$: ...
+%   \prooflabel{Переход} ...
+\newcommand{\prooflabel}[1]{\medskip\noindent\textbf{#1.}\\}
+
+% Кликабельная ссылка на другое определение/теорему/... по её метке (см.
+% префиксы выше — ax:, thm:, prop:, lem:, cor:, def:, ex:, exr:, assum:).
+% Падеж и формулировку текста задаём сами вторым аргументом, макрос не
+% гадает.
+%   По \bookref{def:1.1.1}{определению 1.1.1}, ...
+\newcommand{\bookref}[2]{\hyperref[#1]{\color{bookblue}#2}}
+
+% Обоснование шага доказательства — мелкой серой пометкой сразу после
+% содержательного утверждения, вместо ведущего "По определению X, ...". Само
+% рассуждение остаётся обычным текстом на переднем плане, ссылка на
+% определение/лемму отходит на второй план (как и \leansource):
+%   $f$ — изоморфизм.\by{\bookref{def:1.1.9}{определение 1.1.9}}
+\newcommand{\by}[1]{\ {\footnotesize\color{leangray}(#1)}}
+
+% Блок с интуитивным объяснением — тонкая вертикальная линия слева (как
+% цитата), мелкая серая подпись "Интуиция" сверху, дальше обычный текст без
+% заливки и без изменения цвета. Ставится после формулировки теоремы/
+% определения (пояснить, что она значит и зачем нужна в такой форме) или
+% перед/внутри \begin{proof} (пояснить замысел доказательства, выбор
+% конкретного свидетеля и т.п.) — вне самих theorem-подобных окружений, чтобы
+% не мешать \leansource оставаться последней строкой внутри них.
+%
+% framed.sty (\MakeFramed/\FrameCommand), а не ручной \vrule в minipage —
+% minipage не умеет переносить содержимое через границу страницы, а
+% framed.sty именно для этого и существует.
+\newenvironment{intuition}{%
+  \def\FrameCommand{{\color{intuitiongray}\vrule width 1pt}\hspace{10pt}}%
+  \MakeFramed{\advance\hsize-\width \FrameRestore}%
+  \noindent{\footnotesize\color{intuitiongray}\textbf{Интуиция}}\par\smallskip
+  \noindent\ignorespaces
+}{%
+  \par\endMakeFramed\par\medskip
+}
