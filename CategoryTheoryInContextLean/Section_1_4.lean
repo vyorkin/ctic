@@ -13,7 +13,7 @@ import CategoryTheoryInContextLean.Section_1_3
 namespace CategoryInContext
 open Category
 
--- definition 1.4.1
+-- определение 1.4.1
 class NaturalTransformation {α β : Type*} [C : Category α] [D : Category β]
     (F G : Functor α β) where
   arrow : (X : α) → D.Hom (F.F X) (G.F X)
@@ -24,7 +24,7 @@ def IsNatIso {α β : Type*} [C : Category α] [D : Category β]
     {F G : Functor α β} (η : NaturalTransformation F G) : Prop :=
   ∀ (X : α), IsIso (η.arrow X)
 
--- example 1.4.3iii
+-- пример 1.4.3iii
 def NatTrans_Id_PowerSet : NaturalTransformation IdFunctor PowerSetFunctor where
   arrow X := fun x => ({x} : Set X)
   naturality {X Y} f := by
@@ -33,10 +33,10 @@ def NatTrans_Id_PowerSet : NaturalTransformation IdFunctor PowerSetFunctor where
     rw [Set.image]
     simp
 
--- todo: add more examples from 1.4.3
--- todo: add examples 1.4.4-6
+-- todo: добавить больше примеров из 1.4.3
+-- todo: добавить примеры 1.4.4-6
 
--- example 1.4.7
+-- пример 1.4.7
 def NatTrans_Hom_c_?_Hom_?_c {α : Type*} [C : Category α] (c d : α) (h : Hom c d) :
     NaturalTransformation (Hom_c_? d) (Hom_c_? c) where
   arrow X := fun f => h ≫ f
@@ -45,12 +45,12 @@ def NatTrans_Hom_c_?_Hom_?_c {α : Type*} [C : Category α] (c d : α) (h : Hom 
     simp only [Category.comp, Function.comp_apply, Hom_c_?]
     rw [assoc]
 
--- technically we haven't defined natural transformations for contravariant functors.
+-- формально естественные преобразования для контравариантных функторов ещё не определены.
 -- def NatTrans_Hom_?_c_Hom_c_? {α : Type*} [C : Category α] (c d : α) (h : Hom c d) :
 --     NaturalTransformation (Hom_?_c d) (Hom_?_c c) where
 
--- todo: add example 1.4.8
--- exercise 1.4.i
+-- todo: добавить пример 1.4.8
+-- упражнение 1.4.i
 noncomputable def NatIso_inverse {α β : Type*} [C : Category α] [D : Category β]
     {F G : Functor α β} (η : NaturalTransformation F G) (h : IsNatIso η) :
     NaturalTransformation G F where
@@ -67,15 +67,15 @@ theorem NatIso_inverse_isNatIso {α β : Type*} [C : Category α] [D : Category 
     {F G : Functor α β} (η : NaturalTransformation F G) (h : IsNatIso η) :
     IsNatIso (NatIso_inverse η h) := by sorry
 
--- todo: exercise 1.4.ii, iii - are "what" problems formalizable in Lean?
+-- todo: упражнение 1.4.ii, iii — формализуемы ли в Lean вопросы вида "что это"?
 
--- exercise 1.4.iv
+-- упражнение 1.4.iv
 theorem NatTrans_Hom_c_?_Hom_?_c_distinct {α : Type*} [C : Category α] (c d : α)
     (h1 h2 : Hom c d) (h : h1 ≠ h2) :
     NatTrans_Hom_c_?_Hom_?_c c d h1 ≠ NatTrans_Hom_c_?_Hom_?_c c d h2 := by sorry
 
--- exercise 1.4.v
--- Natural transformation from G ∘ π₂ to F ∘ π₁ for comma category (F ↓ G)
+-- упражнение 1.4.v
+-- Естественное преобразование из G ∘ π₂ в F ∘ π₁ для comma-категории (F ↓ G)
 def Comma_NatTrans {C D E : Type*} [CC : Category C] [CD : Category D] [CE : Category E]
     (F : Functor D C) (G : Functor E C) :
     let CommaType := Σ (d : D) (e : E), Category.Hom (F.F d) (G.F e)
@@ -86,7 +86,7 @@ def Comma_NatTrans {C D E : Type*} [CC : Category C] [CD : Category D] [CE : Cat
   arrow X := sorry
   naturality {X Y} f := by sorry
 
--- exercise 1.4.vi
+-- упражнение 1.4.vi
 class ExtraNatrualTransformation {α β γ δ : Type*} [Category α] [Category β] [Category γ]
     [Category δ] (F : Functor (α × β × Opposite β) δ) (G : Functor (α × γ × Opposite γ) δ) where
 
@@ -95,12 +95,12 @@ class ExtraNatrualTransformation {α β γ δ : Type*} [Category α] [Category �
   lhs_prop {a a': α} {b : β} {c: γ} (f: Hom a a') :
     (arrow a b c) ≫ G.homF (f, id c, id c) = F.homF (f, id b, id b) ≫ (arrow a' b c)
 
-  -- type cast needed to avoid a mysterious error
+  -- приведение типа нужно, чтобы избежать загадочной ошибки
   mid_prop {a : α} {b b' : β} {c : γ} (g : Hom b b') :
     F.homF (id a, g, id b') ≫ (arrow a b' c) = F.homF ((id a, id b, g) :
       @Category.Hom (α × β × Opposite β) _ (a, b, b') (a, b, b)) ≫ (arrow a b c)
 
-  -- type cast needed to avoid a mysterious error
+  -- приведение типа нужно, чтобы избежать загадочной ошибки
   rhs_prop {a : α} {b : β} {c c' : γ} (h : Hom c c') :
     arrow a b c ≫ G.homF (id a, h, id c) = arrow a b c' ≫ G.homF ((id a, id c', h) :
       @Category.Hom (α × γ × Opposite γ) _ (a, c', c') (a, c', c))

@@ -1,4 +1,4 @@
-import Mathlib.Data.Matrix.Mul  -- use #min_imports to update
+import Mathlib.Data.Matrix.Mul  -- используйте #min_imports для обновления
 
 /-!
 # Category Theory in Context — раздел 1.1
@@ -7,7 +7,7 @@ import Mathlib.Data.Matrix.Mul  -- use #min_imports to update
 Также определяем изоморфизмы, группоиды и подкатегории.
 -/
 
--- to avoid name clash with Mathlib.CategoryTheory.Category
+-- чтобы избежать конфликта имён с Mathlib.CategoryTheory.Category
 namespace CategoryInContext
 
 /--
@@ -16,34 +16,34 @@ namespace CategoryInContext
 Композиция ассоциативна, а тождественные морфизмы — единицы композиции.
 
 Замечание: небольшое отступление от определения 1.1 книги — здесь `Hom` задан как
-семейство типов, индексированное парой объектов, а не как единый тип морфизмов
-с функциями область/область значений.
+семейство типов, индексированное парой объектов; в книге вместо этого один общий
+тип морфизмов с функциями область/область значений.
 
 определение 1.1.1
 используем α вместо Obj, следуя стилю mathlib:
 https://leanprover-community.github.io/contribute/style.html
 -/
 class Category (α : Type*) where
-  -- objects
-  -- morphisms
+  -- объекты
+  -- морфизмы
   Hom : α → α → Type*
-  -- identity morphism
+  -- тождественный морфизм
   id : (X : α) → Hom X X
-  -- composition of morphisms
-  -- we use left-to-right notation for composition to match mathlib
-  -- while the book uses right-to-left notation to match traditional notation for functions
+  -- композиция морфизмов
+  -- используем запись слева направо, чтобы совпадать с mathlib,
+  -- тогда как в книге принята запись справа налево, как для обычных функций
   comp : {X Y Z : α} → Hom X Y → Hom Y Z → Hom X Z
-  -- propositions / laws
+  -- утверждения / законы
   id_comp : ∀ {X Y : α} (f : Hom X Y), comp (id X) f = f
   comp_id : ∀ {X Y : α} (f : Hom X Y), comp f (id Y) = f
   assoc : ∀ {W X Y Z : α} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z),
     comp (comp f g) h = comp f (comp g h)
 
--- using ≫ instead of ∘ to match mathlib.
-scoped infixr:80 " ≫ " => Category.comp -- type as \gg
+-- используем ≫ вместо ∘, чтобы совпадать с mathlib.
+scoped infixr:80 " ≫ " => Category.comp -- набирается как \gg
 
 universe u
--- moral equivalent to Set in the book, but working with types in Lean.
+-- по сути аналог Set из книги, но здесь мы работаем с типами Lean.
 instance Category.Type : Category (Type u) where
   Hom X Y := X → Y
   id _ x := x
@@ -52,9 +52,10 @@ instance Category.Type : Category (Type u) where
   comp_id _ := rfl
   assoc _ _ _ := rfl
 
--- example 1.1.3.i
--- difference from the book, we use Sets from a fixed Type X, not all sets
--- the equivalent in set theory would be the category of all subsets of a fixed set X.
+-- пример 1.1.3.i
+-- отличие от книги: здесь берутся подмножества (Set) одного фиксированного типа X,
+-- а в книге — все множества; теоретико-множественный аналог такой категории —
+-- все подмножества фиксированного множества X.
 instance Category.Set (α : Type*) : Category (Set α) where
   Hom X Y := X → Y
   id _ x := x
@@ -63,9 +64,9 @@ instance Category.Set (α : Type*) : Category (Set α) where
   comp_id _ := rfl
   assoc _ _ _ := rfl
 
--- todo: add more examples from mathlib
+-- todo: добавить больше примеров из mathlib
 
--- example 1.1.4.i
+-- пример 1.1.4.i
 def Category.MatR (α : Type*) [Ring α] : Category ℕ where
   Hom n m := Matrix (Fin m) (Fin n) α
   id := 1
@@ -74,7 +75,7 @@ def Category.MatR (α : Type*) [Ring α] : Category ℕ where
   comp_id _ := by simp
   assoc _ _ _ := by rw [Matrix.mul_assoc]
 
--- example 1.1.4.ii
+-- пример 1.1.4.ii
 def Category.Monoid (α : Type*) [Monoid α] : Category Unit where
   Hom _ _ := α
   id _ := 1
@@ -83,17 +84,17 @@ def Category.Monoid (α : Type*) [Monoid α] : Category Unit where
   comp_id := by simp
   assoc f g h := mul_assoc f g h
 
--- example 1.1.4.iii
+-- пример 1.1.4.iii
 noncomputable instance Category.Poset (α : Type*) [PartialOrder α] : Category α where
-  Hom X Y := PLift (X ≤ Y) -- some universe gymnastics to move between Prop and Type
+  Hom X Y := PLift (X ≤ Y) -- немного гимнастики с универсумами для перехода между Prop и Type
   id X := ⟨le_refl X⟩
   comp f g := ⟨le_trans f.down g.down⟩
   id_comp _ := rfl
   comp_id _ := rfl
   assoc _ _ _ := rfl
 
--- example 1.1.4.v
--- slight difference, swap Set with Type, since we are working with type theory in Lean.
+-- пример 1.1.4.v
+-- небольшое отличие: Set заменён на Type, поскольку в Lean мы работаем в теории типов.
 def Category.TrivialType (α : Type) : Category α where
   Hom _ _ := Unit
   id _ := ()
@@ -102,14 +103,14 @@ def Category.TrivialType (α : Type) : Category α where
   comp_id _ := rfl
   assoc _ _ _ := rfl
 
--- definition 1.1.6 (small categories) and 1.1.7 (locally small categories)
--- not sure if even possible to state in Lean, or what is the
--- right definition when working with type theory instead of set theory as foundation.
+-- определение 1.1.6 (малые категории) и 1.1.7 (локально малые категории)
+-- не ясно, возможно ли вообще сформулировать это в Lean и какое определение
+-- будет правильным при теоретико-типовом основании вместо теоретико-множественного.
 
 variable {α : Type*} [Category α]
 
--- definition 1.1.9
--- we defined structure and a prop separate, as they might be useful separately
+-- определение 1.1.9
+-- структуру и предикат определяем отдельно — они могут пригодиться порознь
 structure Category.Isomorphism (X Y : α) where
   f : Hom X Y
   inv : Hom Y X
@@ -138,9 +139,9 @@ def Category.Isomorphic (X Y : α) := Nonempty (Isomorphism X Y)
 def Category.Endomorphism (X : α) := Hom X X
 def Category.Automorphism (X : α) := Isomorphism X X
 
--- example 1.1.10
--- todo: add more examples from mathlib
--- example 1.1.10.v
+-- пример 1.1.10
+-- todo: добавить больше примеров из mathlib
+-- пример 1.1.10.v
 lemma Category.poset_trivial (α : Type) [PartialOrder α] (X Y : α) (f : Hom X Y) :
   Category.IsIso f ↔ X = Y := by
   constructor
@@ -158,20 +159,20 @@ lemma Category.poset_trivial (α : Type) [PartialOrder α] (X Y : α) (f : Hom X
     use id_iso Y
     rfl
 
--- definition 1.1.11
+-- определение 1.1.11
 def Category.Groupoid (α : Type*) [Category α] :=
   ∀ {X Y : α} (f : Hom X Y), Category.IsIso f
 
--- example 1.1.12.i
+-- пример 1.1.12.i
 def Category.group_groupoid (α : Type*) [Group α] :
   @Category.Groupoid Unit (Category.Monoid α) := by
   intro X Y f
   unfold Category.IsIso
-  use (f⁻¹ : α) -- explict cast needed for some reason
+  use (f⁻¹ : α) -- по какой-то причине нужно явное приведение типа
   simp [Category.Monoid]
 
--- definition 1.1.13
--- again because of type theory foundations, we define subcategory as a map to Prop
+-- определение 1.1.13
+-- снова из-за теоретико-типового основания: подкатегорию задаём как отображение в Prop
 structure Category.Subcategory (α : Type*) [Category α] where
   obj : α → Prop
   hom : {X Y : α} → Hom X Y → Prop
@@ -179,16 +180,16 @@ structure Category.Subcategory (α : Type*) [Category α] where
   comp_mem : ∀ {X Y Z} {f : Hom X Y} {g : Hom Y Z},
     obj X → obj Y → obj Z → hom f → hom g → hom (f ≫ g)
 
--- Define subset relation between subcategories as Prop implication
+-- Задаём отношение включения между подкатегориями через импликацию в Prop
 def Category.Subcategory.subset {α : Type*} [Category α] (S T : Subcategory α) : Prop :=
   (∀ X, S.obj X → T.obj X) ∧
   (∀ {X Y} (f : Hom X Y), S.hom f → T.hom f)
 
--- Overload ⊆ notation
+-- Переопределяем нотацию ⊆
 instance {α : Type*} [Category α] : HasSubset (Category.Subcategory α) where
   Subset := Category.Subcategory.subset
 
--- not in the book
+-- этого нет в книге
 def Category.full_subcategory (α : Type*) [Category α] : Subcategory α where
   obj _ := True
   hom _ := True
@@ -207,21 +208,21 @@ lemma Category.empty_subcategory_subset {α : Type*} [Category α] :
   · intro X h; contradiction
   · intros X Y f h; contradiction
 
--- lemma 1.1.13 and exercise 1.1.ii
+-- лемма 1.1.13 и упражнение 1.1.ii
 def Category.maximal_subgroupoid {α : Type*} [Category α] : Subcategory α where
   obj X := True
   hom f := Category.IsIso f
   id_mem x := by sorry
   comp_mem _ _ _ hf hg := by sorry
 
--- exercise 1.1.i
+-- упражнение 1.1.i
 theorem Category.pair_inverse_iso {X Y : α} (f : Hom X Y) (g : Hom Y X) (h : Hom Y X)
   (hg : f ≫ g = id X) (hf : h ≫ f = id Y) : g = h ∧ IsIso f := by sorry
 
 theorem inv_unique_iso : ∀ {A B : α} {iso1 iso2 : Category.Isomorphism A B},
       iso1.f = iso2.f → iso1.inv = iso2.inv := by sorry
 
--- exercise 1.1.iii.i
+-- упражнение 1.1.iii.i
 def Category.slice_under (c : α) : Category (Σ X : α, Hom c X) where
   Hom := fun ⟨X, f⟩ ⟨Y, g⟩ => {h : Hom X Y // f ≫ h = g}
   id := fun ⟨X, f⟩ => ⟨Category.id X, by rw [Category.comp_id]⟩

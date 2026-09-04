@@ -12,15 +12,15 @@ namespace CategoryInContext
 
 open Category
 
--- definition 1.3.1
+-- определение 1.3.1
 class Functor (α β : Type*) [C : Category α] [D : Category β] where
-  -- data
-  -- map on objects
+  -- данные
+  -- отображение на объектах
   F : α → β
-  -- map on morphisms
+  -- отображение на морфизмах
   homF {X Y : α} : C.Hom X Y → D.Hom (F X) (F Y)
-  -- properties / laws
-  -- need to qualify id to avoid clash with id in root namespace.
+  -- свойства / законы
+  -- id нужно квалифицировать, чтобы избежать конфликта с id из корневого пространства имён.
   map_id (X : α) : homF (id X) = Category.id (F X)
   map_comp {X Y Z : α} (f : C.Hom X Y) (g : C.Hom Y Z) :
     homF (f ≫ g) = homF f ≫ homF g
@@ -33,7 +33,7 @@ def IdFunctor {α : Type*} [Category α] : Functor α α where
   map_id _ := rfl
   map_comp _ _ := rfl
 
--- examples 1.3.2.i
+-- примеры 1.3.2.i
 def PowerSetFunctor : Functor Type Type where
   F X := Set X
   homF f := Set.image f
@@ -47,23 +47,23 @@ def PowerSetFunctor : Functor Type Type where
     simp only [Function.comp_apply]
     exact Eq.symm (Set.image_image g f x)
 
--- todo: add 1.3.2.ii-xi, once we have appropriate categories defined
--- todo: add theorem 1.3.3
+-- todo: добавить 1.3.2.ii-xi, когда появятся подходящие категории
+-- todo: добавить теорему 1.3.3
 
--- definition 1.3.5
+-- определение 1.3.5
 class ContraFunctor (α β : Type*) [C : Category α] [D : Category β] where
-  -- data
-  -- map on objects
+  -- данные
+  -- отображение на объектах
   F : α → β
-  -- map on morphisms
+  -- отображение на морфизмах
   homF {X Y : α} : C.Hom X Y → D.Hom (F Y) (F X)
-  -- properties / laws
-  -- need to qualify id to avoid clash with id in root namespace.
+  -- свойства / законы
+  -- id нужно квалифицировать, чтобы избежать конфликта с id из корневого пространства имён.
   map_id (X : α) : homF (id X) = Category.id (F X)
   map_comp {X Y Z : α} (f : C.Hom X Y) (g : C.Hom Y Z) :
     homF (f ≫ g) = homF g ≫ homF f
 
--- example 1.3.7.i
+-- пример 1.3.7.i
 def PowerSetContraFunctor : ContraFunctor Type Type where
   F X := Set X
   homF f := Set.preimage f
@@ -77,9 +77,9 @@ def PowerSetContraFunctor : ContraFunctor Type Type where
     simp only [Function.comp_apply]
     rfl
 
--- todo: add 1.3.7.ii-vi, once we have appropriate categories defined
+-- todo: добавить 1.3.7.ii-vi, когда появятся подходящие категории
 
--- lemma 1.3.8
+-- лемма 1.3.8
 theorem Functor.iso_preserve {α β : Type*} [C : Category α] [D : Category β]
     (F : Functor α β) {X Y : α} (f : C.Hom X Y) (hf : IsIso f) :
     IsIso (F.homF f) := by
@@ -95,16 +95,16 @@ theorem Functor.iso_preserve {α β : Type*} [C : Category α] [D : Category β]
     rw [hf]
     rw [F.map_id]
 
--- example 1.3.9
+-- пример 1.3.9
 def g_set_left_action (α : Type*) [Group α] (β : Type*) :
   @Functor Unit (Set β) (Category.Monoid α) _ := by sorry
 
 def g_set_right_action (α : Type*) [Group α] (β : Type*) :
   @ContraFunctor Unit (Set β) (Category.Monoid α) _ := by sorry
 
--- todo: corollary 1.3.10, we haven't defined ⁻¹ on isomorphisms yet
+-- todo: следствие 1.3.10, для изоморфизмов ещё не определено ⁻¹
 
--- definition 1.3.11 / exercise 1.3.iv
+-- определение 1.3.11 / упражнение 1.3.iv
 def Hom_c_? {α : Type*} [Category α] (c : α) : Functor α Type where
   F Y := Hom c Y
   homF {Y Z : α} (f : Hom Y Z) (g : Hom c Y) := g ≫ f
@@ -117,7 +117,7 @@ def Hom_?_c {α : Type*} [Category α] (c : α) : ContraFunctor α Type where
   map_id X := by sorry
   map_comp {X Y Z : α} (f : Hom X Y) (g : Hom Y Z) := by sorry
 
--- definition 1.3.12
+-- определение 1.3.12
 instance CatProduct {α β : Type*} [C : Category α] [D : Category β] : Category (α × β) where
   Hom X Y := (C.Hom X.1 Y.1) × (D.Hom X.2 Y.2)
   id X := (id X.1, id X.2)
@@ -147,7 +147,7 @@ def prod_functor_functorial_1 {α β γ : Type*} [C : Category α] [D : Category
 
 def prod_functor_functorial_2 {α β γ : Type*} [C : Category α] [D : Category β]
     [Inhabited α] [E : Category γ] (F : Functor (α × β) γ) : Functor β γ where
-  -- todo: find a clever way to prove using prod_functor_functorial_1
+  -- todo: найти изящный способ доказать через prod_functor_functorial_1
   F := fun Y => F.F (default, Y)
   homF := fun {Y Z} f => F.homF (id default, f)
   map_id Y := by
@@ -158,9 +158,9 @@ def prod_functor_functorial_2 {α β γ : Type*} [C : Category α] [D : Category
     congr
     rw [comp_id]
 
--- definition 1.3.13
+-- определение 1.3.13
 def Hom_bifunctor (α : Type*) [C : Category α] : Functor (Opposite α × α) Type where
-  -- without the C. qualification Lean picks up C.opp.Hom and hilarity ensues
+  -- без квалификации C. Lean подхватывает C.opp.Hom, и начинается веселье
   F X := C.Hom X.1 X.2
   homF {X Y} f g := f.1 ≫ g ≫ f.2
   map_id X := by
@@ -173,12 +173,12 @@ def Hom_bifunctor (α : Type*) [C : Category α] : Functor (Opposite α × α) T
     simp [comp]
     repeat rw [assoc]
 
--- Category of small (and locally small) categories, which is locally small but not small.
--- A small category is a category whose objects form a set, which in Lean we take
--- to mean a Type in some universe. Large categories are not expressable in Lean
--- as they would lead to inconsistencies.
--- objects are pairs (α, C) where α is a Type and C is a Category structure on α
--- categories need two universes, one for objects and one for morphisms.
+-- Категория малых (и локально малых) категорий — сама локально малая, но не малая.
+-- Малая категория — категория, объекты которой образуют множество; в Lean это
+-- означает Type в некотором универсуме. Большие категории в Lean невыразимы —
+-- они привели бы к противоречиям.
+-- объекты — пары (α, C), где α — Type, а C — структура Category на α;
+-- категориям нужны два универсума: один для объектов, один для морфизмов.
 def Cat.{u, v} : Type (max (u+1) (v+1)) :=
   Σ (α : Type u), Category.{u, v} α
 
@@ -192,7 +192,7 @@ def Functor.comp {α β γ : Type*} [C : Category α] [D : Category β] [E : Cat
 universe u v
 instance : Category Cat.{u, v} where
   Hom C D := @Functor C.1 D.1 C.2 D.2
-  -- adding explicit letI to help typeclass resolution as suggested by Claude.
+  -- добавляем явный letI, чтобы помочь разрешению типовых классов — по совету Claude.
   id C := letI := C.2; {
     F x := x
     homF f := f
@@ -207,7 +207,7 @@ instance : Category Cat.{u, v} where
 def Category.CatIsomorphism (C D : Cat) := Isomorphism C.1 D.1
 def Category.CatIsomorphic (C D : Cat) := Isomorphic C.1 D.1
 
--- example 1.3.14.i
+-- пример 1.3.14.i
 def Op : Functor Cat Cat where
   F C := ⟨Opposite C.1, @Category.opp (Opposite C.1) C.2⟩
   homF {C D} F := letI := C.2; letI := D.2; {
@@ -223,22 +223,22 @@ def Op : Functor Cat Cat where
   map_id C := by sorry
   map_comp {C D E} F G := by sorry
 
--- todo: add rest of examples from 1.3.14
--- todo: add example 1.3.15
--- todo: add example of sets with partial functions and
--- pointed sets
+-- todo: добавить остальные примеры из 1.3.14
+-- todo: добавить пример 1.3.15
+-- todo: добавить пример множеств с частичными функциями
+-- и отмеченных множеств
 
--- exercise 1.3.i
--- the answer to what is a group homomorphism, but you need to
--- provide the proof.
+-- упражнение 1.3.i
+-- ответ на вопрос "что это" — гомоморфизм групп, но доказательство
+-- нужно провести самостоятельно.
 theorem group_cat_functor {α β : Type*} [Group α] [Group β]
     (F : @Functor Unit Unit (Category.Monoid α) (Category.Monoid β)) :
     ∃ f: α →* β, ∀ x: α, F.homF (X := ()) (Y := ()) x = f x := by sorry
 
--- exercise 1.3.ii
--- we didn't define the category of preorders in section 1.1, so we do it here
+-- упражнение 1.3.ii
+-- категорию предпорядков в разделе 1.1 не определяли, поэтому делаем это здесь
 noncomputable instance Category.Preorder (α : Type*) [Preorder α] : Category α where
-  Hom X Y := PLift (X ≤ Y) -- some universe gymnastics to move between Prop and Type
+  Hom X Y := PLift (X ≤ Y) -- немного гимнастики с универсумами для перехода между Prop и Type
   id X := ⟨le_refl X⟩
   comp f g := ⟨le_trans f.down g.down⟩
   id_comp _ := rfl
@@ -249,22 +249,22 @@ theorem preorder_cat_functor {α β : Type*} [Preorder α] [Preorder β]
     (F : Functor α β) :
     ∃ f: α → β, (Monotone f ∧ ∀ x: α, F.F x = f x) := by sorry
 
--- exercise 1.3.ii
--- because we can't construct the subcategory from the image, we realize
--- the definition of a subcategory have only two properties:
--- closed under identities and closed under composition.
--- and closed under identity is automatic for the image of a functor.
--- -- so we just need to show not closed under composition.
+-- упражнение 1.3.ii
+-- поскольку подкатегорию по образу построить не получается, замечаем, что
+-- у определения подкатегории всего два свойства:
+-- замкнутость относительно тождественных морфизмов и замкнутость относительно композиции.
+-- замкнутость относительно тождественных морфизмов для образа функтора выполняется автоматически.
+-- -- так что нужно показать только незамкнутость относительно композиции.
 --
--- can't get the statement to compile, leaving as a comment
+-- утверждение не удаётся скомпилировать, оставляем как комментарий
 -- theorem not_subgroup : ∃ α β : Type*, ∃ C : Category α, ∃ D : Category β,
 --     ∃ F : Functor α β, ∃ X Y Z : F.F '' Set.univ, ∃ f: D.Hom X Y, ∃ g: D.Hom Y Z,
 --     ∃ f', f' = F.homF ∧ ∃ g', g' = F.homF ∧ ¬ ∃ h', (f ≫ g = F.homF h') := by sorry
 
--- exercise 1.3.v - can't formalize a question that start with "what"
+-- упражнение 1.3.v — вопрос, начинающийся с "что это", формализовать нельзя
 
--- exercise 1.3.vi
--- using exercise notation, instead of mathlib style
+-- упражнение 1.3.vi
+-- нотация здесь как в условии упражнения; вариант mathlib не используется
 instance Comma_category {D C E : Type*} [CC : Category C] [CD : Category D] [CE : Category E]
     (F : Functor D C) (G : Functor E C) :
     Category (Σ (d : D) (e : E), Category.Hom (F.F d) (G.F e)) where
@@ -291,7 +291,7 @@ instance Comma_category {D C E : Type*} [CC : Category C] [CD : Category D] [CE 
   comp_id := sorry
   assoc := sorry
 
---todo: how to refactor the comma category type to avoid spelling it out.
+--todo: как отрефакторить тип comma-категории, чтобы не выписывать его целиком.
 def Comma_category_dom {D C E : Type*} [CC : Category C] [CD : Category D] [CE : Category E]
     (F : Functor D C) (G : Functor E C) :
     Functor (Σ (d : D) (e : E), Category.Hom (F.F d) (G.F e)) D where
@@ -308,7 +308,7 @@ def Comma_category_cod {D C E : Type*} [CC : Category C] [CD : Category D] [CE :
   map_id X := by sorry
   map_comp f g := by sorry
 
--- exercise 1.3.vii
+-- упражнение 1.3.vii
 section Exercise_1_3_vii
 variable {D C E : Type*} [CC : Category C] [CD : Category D] [CE : Category E]
 
@@ -317,7 +317,7 @@ def slice_over_G (c : C) : Functor E C := by sorry
 def slice_over_comma_cat (c : C) := @Comma_category D C E CC CD CE
   (slice_over_F c) (slice_over_G c)
 
--- todo: fix the universes error here
+-- todo: исправить здесь ошибку с универсумами
 -- theorem slice_over_equiv_comma_category (c : C) :
 --   CatIsomorphic
 --   ⟨_, slice_over_comma_cat c⟩
@@ -328,19 +328,19 @@ def slice_under_G (c : C) : Functor E C := by sorry
 def slice_under_comma_cat (c : C) := @Comma_category D C E CC CD CE
   (slice_under_F c) (slice_under_G c)
 
--- todo: fix the universes error here
+-- todo: исправить здесь ошибку с универсумами
 -- theorem slice_under_equiv_comma_category (c : C) :
 --   CatIsomorphic
 --   ⟨_, slice_under_comma_cat c⟩
 --   ⟨_, slice_under c⟩ := by sorry
 end Exercise_1_3_vii
 
--- exercise 1.3.viii
+-- упражнение 1.3.viii
 example : ∃ α β: Type*, ∃ C: Category α, ∃ D: Category β,
     ∃ F : Functor α β, ∃ X Y: α, ∃ f: C.Hom X Y, ¬ IsIso f ∧ IsIso (F.homF f) := by sorry
 
--- exercise 1.3.ix and 1.3.x
--- todo: mathlib has a definition of center, commutator, and automorphisms, but
--- we haven't defined the category of groups.
+-- упражнение 1.3.ix и 1.3.x
+-- todo: в mathlib есть определения центра, коммутанта и автоморфизмов, но
+-- категория групп у нас пока не определена.
 
 end CategoryInContext

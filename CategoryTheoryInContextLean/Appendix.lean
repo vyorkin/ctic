@@ -14,14 +14,14 @@ def Posetal (a : Type*) [C : Category a] : Prop :=
   ∀ (X Y : a), Subsingleton (C.Hom X Y)
 
 /-
-Category with two objects (Fin 2) and two distinct morphisms from 0 to 1
+Категория с двумя объектами (Fin 2) и двумя различными морфизмами из 0 в 1
 
       f
     ⟿⟿⟿⟿
   0 ⟿⟿⟿⟿ 1
       g
 
-where f, g : Fin 2 are the two distinct morphisms from 0 to 1
+где f, g : Fin 2 — два различных морфизма из 0 в 1
 -/
 def TwoMorphismCategory : Category.{0, 0} (Fin 2) where
   Hom X Y := match X, Y with
@@ -50,8 +50,8 @@ example : ∃ (α : Type) (C : Category.{0, 0} α), ¬ @Posetal α C := by
   exact absurd (Subsingleton.elim (0 : Fin 2) 1) (Fin.zero_ne_one)
 
 /-
-Category with 3 objects to show slice_over is not posetal.
-We have two distinct morphisms from 0 to 1, and both paths 0→1→2 and 0→2 give the same composite.
+Категория с 3 объектами — показывает, что slice_over не предпорядковая.
+Есть два различных морфизма из 0 в 1, и оба пути 0→1→2 и 0→2 дают одну и ту же композицию.
 
       f
     ⟿⟿⟿⟿
@@ -61,7 +61,7 @@ We have two distinct morphisms from 0 to 1, and both paths 0→1→2 and 0→2 g
       ╲ ╱
        ↓
 
-where f, g : Fin 2 are the two distinct morphisms from 0 to 1
+где f, g : Fin 2 — два различных морфизма из 0 в 1
 -/
 def ThreeObjCategory : Category.{0, 0} (Fin 3) where
   Hom X Y := match X, Y with
